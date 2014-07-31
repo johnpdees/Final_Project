@@ -14,6 +14,7 @@
 
 import arcpy
 import os
+from arcpy import env
 from arcpy.sa import *
 
 ## Define repeat functions
@@ -48,7 +49,7 @@ def classify_it(raster, num_class, min_class, samp_int, date):
 
 ## Set up workspace
 
-from arcpy import env
+
 env.workspace = "u:/shared/gis/studata/jpdees0754/gitprojects/Final_Project/files/Change20002011.gdb"
 env.overwriteOutput = True
 
