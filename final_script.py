@@ -23,7 +23,7 @@ def clip_it(AOI, raster, date):
        AOI extent for clipping extent. Output file will be a TIF image with the
        supplied date as a filename"""
     try:
-        arcpy.Clip_management(raster, '#', '{}clip.tif'.format(date), AOI, '0', 'ClippingGeometry')
+        arcpy.Clip_management(raster, '#', 'clip{}'.format(date), AOI, '0', 'ClippingGeometry')
     except:
         print('Clip Failed')
         print
@@ -34,7 +34,7 @@ def clip_it(AOI, raster, date):
 def classify_it(raster, num_class, min_class, samp_int, date):
     try:
         outUnsupervised = IsoClusterUnsupervisedClassification(raster, num_class, min_class, samp_int)
-        outUnsupervised.save("{}class.tif".format(date))
+        outUnsupervised.save("class{}".format(date))
         del outUnsupervised
     except:
         print('Classify failed')
@@ -44,25 +44,29 @@ def classify_it(raster, num_class, min_class, samp_int, date):
     
     return
         
-##outUnsupervised = IsoClusterUnsupervisedClassification(inRaster, classes, minMembers, sampInterval)
-##outUnsupervised.save("c:/temp/outunsup01.tif")    
+    
 
 ## Set up workspace
 
 from arcpy import env
-env.workspace = "u:/shared/gis/studata/jpdees0754/gitprojects/Final_Project/files"
+env.workspace = "u:/shared/gis/studata/jpdees0754/gitprojects/Final_Project/files/Change20002011.gdb"
 env.overwriteOutput = True
+
+
+
 
 ## Prompt user for AOI and LANDSAT Rasters
 ## Promt user for raster data month and year
-AOI = arcpy.GetParametersAsText(0)
-new_image = arcpy.GetParametersAsText(1)
-new_date = arcpy.GetParametersAsText(2)
-old_image = arcpy.GetParametersAsText(3)
-old_date = arcpy.GetParametersAsText(4)
-num_class = arcpy.GetParametersAsText(5)
-min_class_size = arcpy.GetParametersAsText(6)
-sample_int = arcpy.GetParametersAsText(7)
+AOI = arcpy.GetParameterAsText(0)
+new_image = arcpy.GetParameterAsText(1)
+new_date = arcpy.GetParameterAsText(2)
+old_image = arcpy.GetParameterAsText(3)
+old_date = arcpy.GetParameterAsText(4)
+num_class = arcpy.GetParameterAsText(5)
+min_class_size = arcpy.GetParameterAsText(6)
+sample_int = arcpy.GetParameterAsText(7)
+
+
 
 
 
@@ -74,14 +78,14 @@ clip_it(AOI, old_image, old_date)
 
 ## Perform unsupervised classification on raster images
 
-classify_it('{}clip.tif'.format(new_date), num_class, min_class_size, sample_int, new_date)
-classify_it('{}clip.tif'.format(old_date), num_class, min_class_size, sample_int, old_date)
+classify_it('clip{}'.format(new_date), num_class, min_class_size, sample_int, new_date)
+classify_it('clip{}'.format(old_date), num_class, min_class_size, sample_int, old_date)
 
 ## Perfom change detection on classified rasters
 
-new_class = arcpy.Raster("{}class.tif".format(new_date))
-old_class = arcpy.Raster("{}class.tif".format(old_date))
+new_class = arcpy.Raster("class{}".format(new_date))
+old_class = arcpy.Raster("class{}".format(old_date))
 
-outEqualTo = Raster(old_class) == Raster(new_class)
-outEqualTo.save("{}_{}_Change.tif".format(old_date,new_date))
+outEqualTo = old_class == new_class
+outEqualTo.save("u:/shared/gis/studata/jpdees0754/gitprojects/Final_Project/files/{}_{}_Change.tif".format(old_date,new_date))
 
